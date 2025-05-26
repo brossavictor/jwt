@@ -1,10 +1,20 @@
-import { Router } from "express"
-import { ProductsController } from "@/controllers/products-controller"
+import { Router } from "express";
+import { ProductsController } from "@/controllers/products-controller";
 
-const productsRoutes = Router()
-const productsController = new ProductsController()
+import { ensureAuthenticated } from "@/middlewares/ensureAuthenticated";
+import { verifyUserAuthorization } from "@/middlewares/verifyUserAuthorization";
 
-productsRoutes.get("/", productsController.index)
-productsRoutes.post("/", productsController.create)
+const productsRoutes = Router();
+const productsController = new ProductsController();
 
-export { productsRoutes }
+//productsRoutes.use(verifyUserAuthorization(["sale", "admin"]));
+
+productsRoutes.get("/", productsController.index);
+productsRoutes.post(
+  "/",
+  ensureAuthenticated,
+  verifyUserAuthorization(["sale", "admin"]),
+  productsController.create
+);
+
+export { productsRoutes };
